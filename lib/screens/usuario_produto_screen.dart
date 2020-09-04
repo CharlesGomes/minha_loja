@@ -9,6 +9,11 @@ import '../widgets/usuario_produto_item.dart';
 class UsuarioProdutoScreen extends StatelessWidget {
   static const routeName = '/usuario-produtos';
 
+// Função que ira atualizar os produtos na tela
+  Future<void> atualizaProdutos(BuildContext context) async {
+    await Provider.of<Produtos>(context).buscaProdutos();
+  }
+
   @override
   Widget build(BuildContext context) {
     final produtosData = Provider.of<Produtos>(context);
@@ -26,19 +31,23 @@ class UsuarioProdutoScreen extends StatelessWidget {
         ],
       ),
       drawer: AppDrawer(),
-      body: Padding(
-        padding: EdgeInsets.all(8),
-        child: ListView.builder(
-          itemCount: produtosData.itens.length,
-          itemBuilder: (_, i) => Column(
-            children: [
-              UsuarioProdutoItem(
-                produtosData.itens[i].id,
-                produtosData.itens[i].titulo,
-                produtosData.itens[i].imagemUrl,
-              ),
-              Divider(),
-            ],
+      // Widget para dar refresh(atualizar) pagina
+      body: RefreshIndicator(
+        onRefresh: () => atualizaProdutos(context),
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: ListView.builder(
+            itemCount: produtosData.itens.length,
+            itemBuilder: (_, i) => Column(
+              children: [
+                UsuarioProdutoItem(
+                  produtosData.itens[i].id,
+                  produtosData.itens[i].titulo,
+                  produtosData.itens[i].imagemUrl,
+                ),
+                Divider(),
+              ],
+            ),
           ),
         ),
       ),

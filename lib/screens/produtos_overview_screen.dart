@@ -6,6 +6,7 @@ import '../widgets/produtos_grid.dart';
 import '../widgets/badge.dart';
 import '../providers/carrinho.dart';
 import '../widgets/app_drawer.dart';
+import '../providers/produtos.dart';
 
 enum FiltrosOpcoes {
   Favoritos,
@@ -19,6 +20,30 @@ class ProdutosOverviewScreen extends StatefulWidget {
 
 class _ProdutosOverviewScreenState extends State<ProdutosOverviewScreen> {
   var _mostraFavoritos = false;
+  var _isInit = true;
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      Provider.of<Produtos>(context).buscaProdutos().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +91,11 @@ class _ProdutosOverviewScreenState extends State<ProdutosOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: ProdutosGrid(_mostraFavoritos),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProdutosGrid(_mostraFavoritos),
     );
   }
 }
