@@ -73,7 +73,38 @@ class Produtos with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  void addProduto() {
+// Adiciona um novo produto
+  void addProduto(Produto produto) {
+    final novoProduto = Produto(
+      id: DateTime.now().toString(),
+      titulo: produto.titulo,
+      descricao: produto.descricao,
+      preco: produto.preco,
+      imagemUrl: produto.imagemUrl,
+    );
+    _itens.add(novoProduto);
+
+    notifyListeners();
+  }
+
+// Atualiza produto
+  void updateProduto(String id, Produto novoProduto) {
+    final prodIndex = _itens.indexWhere(
+        (prod) => prod.id == id); // Obtem a posição do produto com msm id
+// Verifica a posição é valida
+    if (prodIndex >= 0) {
+      // print(novoProduto.preco);
+      _itens[prodIndex] =
+          novoProduto; // Salva o produto alterado na lista de produtos
+      notifyListeners();
+    } else {
+      print('...');
+    }
+  }
+
+// Remove produto
+  void deletaProduto(String id) {
+    _itens.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
 }
