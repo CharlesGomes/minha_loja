@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 class Produto with ChangeNotifier {
   final String id;
@@ -17,9 +19,29 @@ class Produto with ChangeNotifier {
     this.isFavorito = false,
   });
 
+  void _setFavValue(bool novoValor) {
+    isFavorito = novoValor;
+    notifyListeners(); // Notifica os ouvintes
+  }
+
 // Metodo da class para alterar o status da propriedade isFavorito
-  void alteraFavoritostatus() {
+  Future<void> alteraFavoritoStatus() async {
+    final statusAnteiror = isFavorito;
     isFavorito = !isFavorito; // Inverte o valor
     notifyListeners(); // Notifica os ouvintes
+    final url =
+        'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json'; // Url de comunicação com a API
+    try {
+      final resposta = await http.patch(url,
+          body: json.encode({
+            'isFavorito': isFavorito,
+          }));
+      if (resposta.statusCode >= 400) {
+        _setFavValue(statusAnteiror);
+      }
+    } catch (erro) {
+      // Caso ocorra um erro ao salvar dados no servidor reverte ao valor anterior
+      _setFavValue(statusAnteiror);
+    }
   }
 }

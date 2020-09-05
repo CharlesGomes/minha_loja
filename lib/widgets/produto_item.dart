@@ -45,7 +45,7 @@ class ProdutoItem extends StatelessWidget {
                   produto.isFavorito ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
                 // Chamo a função que alterar estatus de favorito
-                produto.alteraFavoritostatus();
+                produto.alteraFavoritoStatus();
               },
               color: Theme.of(context).accentColor,
             ),

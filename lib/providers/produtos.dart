@@ -83,17 +83,23 @@ class Produtos with ChangeNotifier {
       final extrairDados = json.decode(resposta.body)
           as Map<String, dynamic>; // Extrai os daods da requisição get
       final List<Produto> carregaProdutos = [];
-      extrairDados.forEach((prodId, prodDado) {
-        carregaProdutos.add(Produto(
-          id: prodId,
-          titulo: prodDado['titulo'],
-          preco: prodDado['preco'],
-          descricao: prodDado['descricao'],
-          imagemUrl: prodDado['imagemUrl'],
-          isFavorito: prodDado['isFavorito'],
-        ));
-      });
-      _itens = carregaProdutos;
+      // Verifica se retonar algum dado ou nulo
+      if (extrairDados != null) {
+        extrairDados.forEach((prodId, prodDado) {
+          carregaProdutos.add(Produto(
+            id: prodId,
+            titulo: prodDado['titulo'],
+            preco: prodDado['preco'],
+            descricao: prodDado['descricao'],
+            imagemUrl: prodDado['imagemUrl'],
+            isFavorito: prodDado['isFavorito'],
+          ));
+        });
+        _itens = carregaProdutos;
+      } else {
+        _itens = carregaProdutos;
+      }
+
       notifyListeners();
     } catch (erro) {
       throw erro;
