@@ -3,6 +3,7 @@ import '../screens/produto_detalhe_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/produto.dart';
 import '../providers/carrinho.dart';
+import '../providers/auth.dart';
 
 class ProdutoItem extends StatelessWidget {
   // final String id;
@@ -17,6 +18,7 @@ class ProdutoItem extends StatelessWidget {
     // OBS: listen false - não reconstroi o widget caso haja alteração
     final produto = Provider.of<Produto>(context, listen: false);
     final carrinho = Provider.of<Carrinho>(context, listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       // Usado para arrendodar as bordas de um retangulo
       borderRadius: BorderRadius.circular(10),
@@ -45,7 +47,7 @@ class ProdutoItem extends StatelessWidget {
                   produto.isFavorito ? Icons.favorite : Icons.favorite_border),
               onPressed: () {
                 // Chamo a função que alterar estatus de favorito
-                produto.alteraFavoritoStatus();
+                produto.alteraFavoritoStatus(authData.token, authData.userId);
               },
               color: Theme.of(context).accentColor,
             ),

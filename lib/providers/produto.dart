@@ -25,17 +25,19 @@ class Produto with ChangeNotifier {
   }
 
 // Metodo da class para alterar o status da propriedade isFavorito
-  Future<void> alteraFavoritoStatus() async {
+  Future<void> alteraFavoritoStatus(String token, String userId) async {
     final statusAnteiror = isFavorito;
     isFavorito = !isFavorito; // Inverte o valor
     notifyListeners(); // Notifica os ouvintes
     final url =
-        'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json'; // Url de comunicação com a API
+        'https://flutter-update-ef19b.firebaseio.com/userFavoritos/$userId/$id.json?auth=$token'; // Url de comunicação com a API
     try {
-      final resposta = await http.patch(url,
-          body: json.encode({
-            'isFavorito': isFavorito,
-          }));
+      final resposta = await http.put(
+        url,
+        body: json.encode(
+          isFavorito,
+        ),
+      );
       if (resposta.statusCode >= 400) {
         _setFavValue(statusAnteiror);
       }

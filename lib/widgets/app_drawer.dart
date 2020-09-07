@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../screens/usuario_produto_screen.dart';
 import '../screens/ordens_screen.dart';
+import '../providers/auth.dart';
 
 class AppDrawer extends StatelessWidget {
   @override
@@ -30,12 +33,25 @@ class AppDrawer extends StatelessWidget {
               }),
           Divider(),
           ListTile(
-              leading: Icon(Icons.edit),
-              title: Text("Gerir Produtos"),
-              onTap: () {
-                Navigator.of(context).pushReplacementNamed(
-                    UsuarioProdutoScreen.routeName); // Volta a raiz
-              }),
+            leading: Icon(Icons.edit),
+            title: Text("Gerir Produtos"),
+            onTap: () {
+              Navigator.of(context).pushReplacementNamed(
+                  UsuarioProdutoScreen.routeName); // Volta a raiz
+            },
+          ),
+          Divider(),
+          ListTile(
+            leading: Icon(Icons.exit_to_app),
+            title: Text("Logout"),
+            onTap: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacementNamed('/'); // Rota inicial
+              // Chama função para deslogar usuario
+              Provider.of<Auth>(context, listen: false)
+                  .logout(); // Desloga usuario
+            },
+          ),
         ],
       ),
     );

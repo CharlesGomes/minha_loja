@@ -12,13 +12,17 @@ class Produtos with ChangeNotifier {
 
   // var _mostraFavorito = false;
 
+  final String authToken;
+  final String userId;
+
+  Produtos(
+    this.authToken,
+    this.userId,
+    this._itens,
+  );
+
 // Retorna uma copia da lista de produtos
   List<Produto> get itens {
-    // Retorna a lista de favoritos para os produtos marcados com favorito
-    // if (_mostraFavorito) {
-    //   return _itens.where((prodItem) => prodItem.isFavorito).toList();
-    // }
-    // Retorna todos os produtos
     return [..._itens];
   }
 
@@ -32,22 +36,10 @@ class Produtos with ChangeNotifier {
     return _itens.firstWhere((prod) => prod.id == id);
   }
 
-// Atribui true a propriedade _mostraFavorito
-  // void mostraFavoritos() {
-  //   _mostraFavorito = true;
-  //   notifyListeners();
-  // }
-
-// Atribui false a propriedade _mostraFavorito
-  // void mostraTodos() {
-  //   _mostraFavorito = false;
-  //   notifyListeners();
-  // }
-
 // Adiciona um novo produto
   Future<void> addProduto(Produto produto) async {
-    const url =
-        'https://flutter-update-ef19b.firebaseio.com/produtos.json'; // Url de comunicação com a API
+    final url =
+        'https://flutter-update-ef19b.firebaseio.com/produtos.json?auth=$authToken'; // Url de comunicação com a API
     try {
       final resposta = await http.post(
         url,
@@ -56,7 +48,7 @@ class Produtos with ChangeNotifier {
           'descricao': produto.descricao,
           'preco': produto.preco,
           'imagemUrl': produto.imagemUrl,
-          'isFavorito': produto.isFavorito,
+          'criadorId': userId,
         }),
       );
       // Resposta do servidor
@@ -75,13 +67,20 @@ class Produtos with ChangeNotifier {
     }
   }
 
-  Future<void> buscaProdutos() async {
-    const url =
-        'https://flutter-update-ef19b.firebaseio.com/produtos.json'; // Url de comunicação com a API
+  Future<void> buscaProdutos([bool filtroUsuario = false]) async {
+    final filtroString =
+        filtroUsuario ? 'orderBy="criadorId"&equalTo="$userId"' : '';
+    var url =
+        'https://flutter-update-ef19b.firebaseio.com/produtos.json?auth=$authToken&$filtroString'; // Url de comunicação com a API
     try {
       final resposta = await http.get(url); // Busca produtos na API
       final extrairDados = json.decode(resposta.body)
-          as Map<String, dynamic>; // Extrai os daods da requisição get
+          as Map<String, dynamic>; // Extrai os dados da requisição get
+      url =
+          'https://flutter-update-ef19b.firebaseio.com/userFavoritos/$userId.json?auth=$authToken';
+      final favoritoResposta = await http.get(url);
+      final favoritoData = json.decode(favoritoResposta
+          .body); // Recebe a opção favorito do produto de cada usuario
       final List<Produto> carregaProdutos = [];
       // Verifica se retonar algum dado ou nulo
       if (extrairDados != null) {
@@ -92,7 +91,8 @@ class Produtos with ChangeNotifier {
             preco: prodDado['preco'],
             descricao: prodDado['descricao'],
             imagemUrl: prodDado['imagemUrl'],
-            isFavorito: prodDado['isFavorito'],
+            isFavorito:
+                favoritoData == null ? false : favoritoData[prodId] ?? false,
           ));
         });
         _itens = carregaProdutos;
@@ -114,7 +114,7 @@ class Produtos with ChangeNotifier {
 // Verifica a posição é valida
     if (prodIndex >= 0) {
       final url =
-          'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json';
+          'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json?auth=$authToken';
 
       await http.patch(url,
           body: json.encode({
@@ -132,7 +132,8 @@ class Produtos with ChangeNotifier {
 
 // Remove produto
   Future<void> deletaProduto(String id) async {
-    final url = 'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json';
+    final url =
+        'https://flutter-update-ef19b.firebaseio.com/produtos/$id.json?auth=$authToken';
     final existeProdutoIndex = _itens.indexWhere((prod) => prod.id == id);
     var existeProduto = _itens[existeProdutoIndex];
     _itens.removeAt(existeProdutoIndex);
